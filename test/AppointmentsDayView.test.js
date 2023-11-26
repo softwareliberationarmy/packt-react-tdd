@@ -5,24 +5,71 @@ import { Appointment, AppointmentsDayView } from "../src/AppointmentsDayView";
 
 describe("Appointment", () => {
   let container;
+  let props;
+
   beforeEach(() => {
     container = document.createElement("div");
+    props = { customer: {} };
     document.body.replaceChildren(container);
   });
 
   const render = (component) =>
     act(() => ReactDOM.createRoot(container).render(component));
 
+  const verifyFieldShowsUp = (value, label) => {
+    render(<Appointment {...props} />);
+    expect(document.body.textContent).toContain(value);
+    expect(document.body.textContent).toContain(label);
+  };
+
+  const verifyCustomerFieldShowsUp = (field, value, label) => {
+    props.customer[field] = value;
+    verifyFieldShowsUp(value, label);
+  };
+
   it("renders the customer first name", () => {
-    const customer = { firstName: "Ashley" };
-    render(<Appointment customer={customer} />);
-    expect(document.body.textContent).toContain("Ashley");
+    verifyCustomerFieldShowsUp("firstName", "Ashley", "Customer first name");
   });
 
   it("renders any customer first name", () => {
-    const customer = { firstName: "Jordan" };
-    render(<Appointment customer={customer} />);
-    expect(document.body.textContent).toContain("Jordan");
+    verifyCustomerFieldShowsUp("firstName", "Jordan", "Customer first name");
+  });
+
+  it("renders customer last name", () => {
+    verifyCustomerFieldShowsUp("lastName", "Jones", "Customer last name");
+  });
+
+  it("renders customer phone number", () => {
+    verifyCustomerFieldShowsUp(
+      "phoneNumber",
+      "555-1212",
+      "Customer phone number"
+    );
+  });
+
+  it("renders the stylist name", () => {
+    props.stylist = "Jess";
+    verifyFieldShowsUp("Jess", "Stylist");
+  });
+
+  it("renders the salon service", () => {
+    props.service = "Brazilian wax";
+    verifyFieldShowsUp("Brazilian wax", "Salon service");
+  });
+
+  it("renders the appointment notes", () => {
+    props.notes = "Here are some notes";
+    verifyFieldShowsUp("Here are some notes", "Appointment notes");
+  });
+
+  it("shows a header with the appointment time", () => {
+    const apptDate = new Date(2023, 8, 1, 9, 0, 0);
+    props.startsAt = apptDate;
+    render(<Appointment {...props} />);
+    expect(container.querySelector("h3")).not.toBeNull();
+    expect(container.querySelector("h3").textContent).toEqual(
+      "9/1/2023, 9:00 AM"
+    );
   });
 });
 
